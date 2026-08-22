@@ -2,8 +2,9 @@
 vendors.py — CRUD for the vendors table. Nothing else lives here.
 
 tags / target_ages / excluded_ages are stored as comma-separated text
-(e.g. "stem,hands-on") to keep the schema simple — no separate tables
-for them yet. Split on "," when you need them as a real list.
+to keep the schema simple — no separate tables for them yet. tags is
+free text (e.g. "stem,hands-on"); target_ages/excluded_ages are school
+years (e.g. "7,8,9"). Split on "," when you need them as a real list.
 """
 
 from db import get_connection

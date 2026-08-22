@@ -8,12 +8,12 @@ foreign key in db.py.
 from db import get_connection
 
 
-def add_class(school_id, name, capacity, age_group):
+def add_class(school_id, name, capacity, age_group, target_workshops=1):
     conn = get_connection()
     try:
         cursor = conn.execute(
-            "INSERT INTO classes (school_id, name, capacity, age_group) VALUES (?, ?, ?, ?)",
-            (school_id, name, capacity, age_group),
+            "INSERT INTO classes (school_id, name, capacity, age_group, target_workshops) VALUES (?, ?, ?, ?, ?)",
+            (school_id, name, capacity, age_group, target_workshops),
         )
         conn.commit()
         return cursor.lastrowid
@@ -26,16 +26,18 @@ def get_classes(school_id=None):
     conn = get_connection()
     try:
         if school_id is None:
-            return conn.execute("SELECT id, school_id, name, capacity, age_group FROM classes").fetchall()
+            return conn.execute(
+                "SELECT id, school_id, name, capacity, age_group, target_workshops FROM classes"
+            ).fetchall()
         return conn.execute(
-            "SELECT id, school_id, name, capacity, age_group FROM classes WHERE school_id = ?",
+            "SELECT id, school_id, name, capacity, age_group, target_workshops FROM classes WHERE school_id = ?",
             (school_id,),
         ).fetchall()
     finally:
         conn.close()
 
 
-def update_class(class_id, name=None, capacity=None, age_group=None):
+def update_class(class_id, name=None, capacity=None, age_group=None, target_workshops=None):
     conn = get_connection()
     try:
         if name is not None:
@@ -44,6 +46,8 @@ def update_class(class_id, name=None, capacity=None, age_group=None):
             conn.execute("UPDATE classes SET capacity = ? WHERE id = ?", (capacity, class_id))
         if age_group is not None:
             conn.execute("UPDATE classes SET age_group = ? WHERE id = ?", (age_group, class_id))
+        if target_workshops is not None:
+            conn.execute("UPDATE classes SET target_workshops = ? WHERE id = ?", (target_workshops, class_id))
         conn.commit()
     finally:
         conn.close()

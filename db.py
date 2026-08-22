@@ -30,8 +30,8 @@ def create_tables():
             capacity_per_session INTEGER NOT NULL,
             tags TEXT DEFAULT '',                -- comma-separated, e.g. "stem,hands-on"
             workshop_type TEXT DEFAULT '',       -- e.g. "lecture" / "interactive" / "art"
-            target_ages TEXT DEFAULT '',         -- comma-separated, empty = no restriction
-            excluded_ages TEXT DEFAULT '',       -- comma-separated
+            target_ages TEXT DEFAULT '',         -- comma-separated school years, e.g. "7,8,9"; empty = no restriction
+            excluded_ages TEXT DEFAULT '',       -- comma-separated school years
             travel_time INTEGER DEFAULT 0,       -- minutes to reach this vendor
             wants_break INTEGER DEFAULT 1,       -- 0 or 1
             break_duration INTEGER DEFAULT 10    -- minutes
@@ -53,7 +53,8 @@ def create_tables():
             school_id INTEGER NOT NULL,
             name TEXT NOT NULL,
             capacity INTEGER NOT NULL,
-            age_group TEXT NOT NULL,
+            age_group TEXT NOT NULL,             -- comma-separated school years, e.g. "8,9"
+            target_workshops INTEGER NOT NULL DEFAULT 1,
             FOREIGN KEY (school_id) REFERENCES schools(id)
         )
     """)
