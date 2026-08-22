@@ -24,36 +24,38 @@ def add_vendor(
     break_duration=10,
 ):
     conn = get_connection()
-    cursor = conn.execute(
-        """
-        INSERT INTO vendors (
-            name, available_start, available_end, session_duration,
-            capacity_per_session, tags, workshop_type, target_ages,
-            excluded_ages, travel_time, wants_break, break_duration
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-            name, available_start, available_end, session_duration,
-            capacity_per_session, tags, workshop_type, target_ages,
-            excluded_ages, travel_time, int(wants_break), break_duration,
-        ),
-    )
-    conn.commit()
-    new_id = cursor.lastrowid
-    conn.close()
-    return new_id
+    try:
+        cursor = conn.execute(
+            """
+            INSERT INTO vendors (
+                name, available_start, available_end, session_duration,
+                capacity_per_session, tags, workshop_type, target_ages,
+                excluded_ages, travel_time, wants_break, break_duration
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                name, available_start, available_end, session_duration,
+                capacity_per_session, tags, workshop_type, target_ages,
+                excluded_ages, travel_time, int(wants_break), break_duration,
+            ),
+        )
+        conn.commit()
+        return cursor.lastrowid
+    finally:
+        conn.close()
 
 
 def get_vendors():
     conn = get_connection()
-    rows = conn.execute("""
-        SELECT id, name, available_start, available_end, session_duration,
-               capacity_per_session, tags, workshop_type, target_ages,
-               excluded_ages, travel_time, wants_break, break_duration
-        FROM vendors
-    """).fetchall()
-    conn.close()
-    return rows
+    try:
+        return conn.execute("""
+            SELECT id, name, available_start, available_end, session_duration,
+                   capacity_per_session, tags, workshop_type, target_ages,
+                   excluded_ages, travel_time, wants_break, break_duration
+            FROM vendors
+        """).fetchall()
+    finally:
+        conn.close()
 
 
 # Which fields can be updated. Keeps update_vendor() short instead of one
@@ -76,15 +78,19 @@ def update_vendor(vendor_id, **fields):
         return
 
     conn = get_connection()
-    set_clause = ", ".join(f"{field} = ?" for field in fields)
-    values = list(fields.values()) + [vendor_id]
-    conn.execute(f"UPDATE vendors SET {set_clause} WHERE id = ?", values)
-    conn.commit()
-    conn.close()
+    try:
+        set_clause = ", ".join(f"{field} = ?" for field in fields)
+        values = list(fields.values()) + [vendor_id]
+        conn.execute(f"UPDATE vendors SET {set_clause} WHERE id = ?", values)
+        conn.commit()
+    finally:
+        conn.close()
 
 
 def delete_vendor(vendor_id):
     conn = get_connection()
-    conn.execute("DELETE FROM vendors WHERE id = ?", (vendor_id,))
-    conn.commit()
-    conn.close()
+    try:
+        conn.execute("DELETE FROM vendors WHERE id = ?", (vendor_id,))
+        conn.commit()
+    finally:
+        conn.close()

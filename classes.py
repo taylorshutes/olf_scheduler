@@ -10,44 +10,49 @@ from db import get_connection
 
 def add_class(school_id, name, capacity, age_group):
     conn = get_connection()
-    cursor = conn.execute(
-        "INSERT INTO classes (school_id, name, capacity, age_group) VALUES (?, ?, ?, ?)",
-        (school_id, name, capacity, age_group),
-    )
-    conn.commit()
-    new_id = cursor.lastrowid
-    conn.close()
-    return new_id
+    try:
+        cursor = conn.execute(
+            "INSERT INTO classes (school_id, name, capacity, age_group) VALUES (?, ?, ?, ?)",
+            (school_id, name, capacity, age_group),
+        )
+        conn.commit()
+        return cursor.lastrowid
+    finally:
+        conn.close()
 
 
 def get_classes(school_id=None):
     """If school_id is given, only return classes for that school."""
     conn = get_connection()
-    if school_id is None:
-        rows = conn.execute("SELECT id, school_id, name, capacity, age_group FROM classes").fetchall()
-    else:
-        rows = conn.execute(
+    try:
+        if school_id is None:
+            return conn.execute("SELECT id, school_id, name, capacity, age_group FROM classes").fetchall()
+        return conn.execute(
             "SELECT id, school_id, name, capacity, age_group FROM classes WHERE school_id = ?",
             (school_id,),
         ).fetchall()
-    conn.close()
-    return rows
+    finally:
+        conn.close()
 
 
 def update_class(class_id, name=None, capacity=None, age_group=None):
     conn = get_connection()
-    if name is not None:
-        conn.execute("UPDATE classes SET name = ? WHERE id = ?", (name, class_id))
-    if capacity is not None:
-        conn.execute("UPDATE classes SET capacity = ? WHERE id = ?", (capacity, class_id))
-    if age_group is not None:
-        conn.execute("UPDATE classes SET age_group = ? WHERE id = ?", (age_group, class_id))
-    conn.commit()
-    conn.close()
+    try:
+        if name is not None:
+            conn.execute("UPDATE classes SET name = ? WHERE id = ?", (name, class_id))
+        if capacity is not None:
+            conn.execute("UPDATE classes SET capacity = ? WHERE id = ?", (capacity, class_id))
+        if age_group is not None:
+            conn.execute("UPDATE classes SET age_group = ? WHERE id = ?", (age_group, class_id))
+        conn.commit()
+    finally:
+        conn.close()
 
 
 def delete_class(class_id):
     conn = get_connection()
-    conn.execute("DELETE FROM classes WHERE id = ?", (class_id,))
-    conn.commit()
-    conn.close()
+    try:
+        conn.execute("DELETE FROM classes WHERE id = ?", (class_id,))
+        conn.commit()
+    finally:
+        conn.close()

@@ -7,37 +7,43 @@ from db import get_connection
 
 def add_school(name, arrival_time, departure_time):
     conn = get_connection()
-    cursor = conn.execute(
-        "INSERT INTO schools (name, arrival_time, departure_time) VALUES (?, ?, ?)",
-        (name, arrival_time, departure_time),
-    )
-    conn.commit()
-    new_id = cursor.lastrowid
-    conn.close()
-    return new_id
+    try:
+        cursor = conn.execute(
+            "INSERT INTO schools (name, arrival_time, departure_time) VALUES (?, ?, ?)",
+            (name, arrival_time, departure_time),
+        )
+        conn.commit()
+        return cursor.lastrowid
+    finally:
+        conn.close()
 
 
 def get_schools():
     conn = get_connection()
-    rows = conn.execute("SELECT id, name, arrival_time, departure_time FROM schools").fetchall()
-    conn.close()
-    return rows
+    try:
+        return conn.execute("SELECT id, name, arrival_time, departure_time FROM schools").fetchall()
+    finally:
+        conn.close()
 
 
 def update_school(school_id, name=None, arrival_time=None, departure_time=None):
     conn = get_connection()
-    if name is not None:
-        conn.execute("UPDATE schools SET name = ? WHERE id = ?", (name, school_id))
-    if arrival_time is not None:
-        conn.execute("UPDATE schools SET arrival_time = ? WHERE id = ?", (arrival_time, school_id))
-    if departure_time is not None:
-        conn.execute("UPDATE schools SET departure_time = ? WHERE id = ?", (departure_time, school_id))
-    conn.commit()
-    conn.close()
+    try:
+        if name is not None:
+            conn.execute("UPDATE schools SET name = ? WHERE id = ?", (name, school_id))
+        if arrival_time is not None:
+            conn.execute("UPDATE schools SET arrival_time = ? WHERE id = ?", (arrival_time, school_id))
+        if departure_time is not None:
+            conn.execute("UPDATE schools SET departure_time = ? WHERE id = ?", (departure_time, school_id))
+        conn.commit()
+    finally:
+        conn.close()
 
 
 def delete_school(school_id):
     conn = get_connection()
-    conn.execute("DELETE FROM schools WHERE id = ?", (school_id,))
-    conn.commit()
-    conn.close()
+    try:
+        conn.execute("DELETE FROM schools WHERE id = ?", (school_id,))
+        conn.commit()
+    finally:
+        conn.close()
