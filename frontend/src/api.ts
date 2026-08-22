@@ -44,3 +44,64 @@ export function createVendor(vendor: NewVendor): Promise<Vendor> {
 export function deleteVendor(id: number): Promise<{ deleted: number }> {
   return request(`/vendors/${id}`, { method: "DELETE" })
 }
+
+export interface School {
+  id: number
+  name: string
+  arrival_time: string   // "HH:MM"
+  departure_time: string // "HH:MM"
+}
+
+export type NewSchool = Omit<School, "id">
+
+export function getSchools(): Promise<School[]> {
+  return request("/schools")
+}
+
+export function createSchool(school: NewSchool): Promise<School> {
+  return request("/schools", { method: "POST", body: JSON.stringify(school) })
+}
+
+export function deleteSchool(id: number): Promise<{ deleted: number }> {
+  return request(`/schools/${id}`, { method: "DELETE" })
+}
+
+export interface SchoolClass {
+  id: number
+  school_id: number
+  name: string
+  capacity: number
+  age_group: number[]   // school years, e.g. [8, 9] for a combined class
+  target_workshops: number
+}
+
+export type NewSchoolClass = Omit<SchoolClass, "id">
+
+export function getClasses(schoolId?: number): Promise<SchoolClass[]> {
+  const qs = schoolId != null ? `?school_id=${schoolId}` : ""
+  return request(`/classes${qs}`)
+}
+
+export function createClass(cls: NewSchoolClass): Promise<SchoolClass> {
+  return request("/classes", { method: "POST", body: JSON.stringify(cls) })
+}
+
+export function deleteClass(id: number): Promise<{ deleted: number }> {
+  return request(`/classes/${id}`, { method: "DELETE" })
+}
+
+export interface ScheduleEntry {
+  start: string // "HH:MM"
+  end: string   // "HH:MM"
+  label: string
+  kind: "workshop" | "recess" | "lunch"
+}
+
+export interface SolveResult {
+  schedule: Record<string, ScheduleEntry[]> // keyed by class id (as string)
+  alerts: string[]
+}
+
+export function solve(): Promise<SolveResult> {
+  return request("/solve", { method: "POST" })
+}
