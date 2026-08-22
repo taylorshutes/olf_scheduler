@@ -37,9 +37,11 @@ def get_classes(school_id=None):
         conn.close()
 
 
-def update_class(class_id, name=None, capacity=None, age_group=None, target_workshops=None):
+def update_class(class_id, school_id=None, name=None, capacity=None, age_group=None, target_workshops=None):
     conn = get_connection()
     try:
+        if school_id is not None:
+            conn.execute("UPDATE classes SET school_id = ? WHERE id = ?", (school_id, class_id))
         if name is not None:
             conn.execute("UPDATE classes SET name = ? WHERE id = ?", (name, class_id))
         if capacity is not None:

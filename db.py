@@ -59,6 +59,14 @@ def create_tables():
         )
     """)
 
+    # CREATE TABLE IF NOT EXISTS above is a no-op on a table that already
+    # existed before a column was added to the schema (no migrations yet —
+    # see CLAUDE.md's "known gaps"). Patch existing databases in place so
+    # older excursion.db files pick up new columns without losing data.
+    existing_columns = {row[1] for row in conn.execute("PRAGMA table_info(classes)")}
+    if "target_workshops" not in existing_columns:
+        conn.execute("ALTER TABLE classes ADD COLUMN target_workshops INTEGER NOT NULL DEFAULT 1")
+
     conn.commit()
     conn.close()
 

@@ -41,6 +41,10 @@ export function createVendor(vendor: NewVendor): Promise<Vendor> {
   return request("/vendors", { method: "POST", body: JSON.stringify(vendor) })
 }
 
+export function updateVendor(id: number, vendor: NewVendor): Promise<Vendor> {
+  return request(`/vendors/${id}`, { method: "PUT", body: JSON.stringify(vendor) })
+}
+
 export function deleteVendor(id: number): Promise<{ deleted: number }> {
   return request(`/vendors/${id}`, { method: "DELETE" })
 }
@@ -60,6 +64,10 @@ export function getSchools(): Promise<School[]> {
 
 export function createSchool(school: NewSchool): Promise<School> {
   return request("/schools", { method: "POST", body: JSON.stringify(school) })
+}
+
+export function updateSchool(id: number, school: NewSchool): Promise<School> {
+  return request(`/schools/${id}`, { method: "PUT", body: JSON.stringify(school) })
 }
 
 export function deleteSchool(id: number): Promise<{ deleted: number }> {
@@ -86,6 +94,10 @@ export function createClass(cls: NewSchoolClass): Promise<SchoolClass> {
   return request("/classes", { method: "POST", body: JSON.stringify(cls) })
 }
 
+export function updateClass(id: number, cls: NewSchoolClass): Promise<SchoolClass> {
+  return request(`/classes/${id}`, { method: "PUT", body: JSON.stringify(cls) })
+}
+
 export function deleteClass(id: number): Promise<{ deleted: number }> {
   return request(`/classes/${id}`, { method: "DELETE" })
 }
@@ -97,9 +109,23 @@ export interface ScheduleEntry {
   kind: "workshop" | "recess" | "lunch"
 }
 
+export interface GridEntry {
+  class_id: string
+  text: string
+}
+
+export interface GridData {
+  times: string[]         // "HH:MM" row labels
+  vendor_names: string[]  // column labels
+  cell_text: Record<string, Record<string, GridEntry[]>>  // time -> vendor name -> entries
+  break_text: Record<string, GridEntry[]>                 // time -> entries
+}
+
 export interface SolveResult {
   schedule: Record<string, ScheduleEntry[]> // keyed by class id (as string)
   alerts: string[]
+  grid: GridData | null
+  colors: Record<string, string> | null // class id -> hex color
 }
 
 export function solve(): Promise<SolveResult> {

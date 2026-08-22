@@ -5,6 +5,7 @@ import {
   deleteClass,
   getClasses,
   getSchools,
+  updateClass,
   type NewSchoolClass,
   type School,
   type SchoolClass,
@@ -41,10 +42,24 @@ function formToClass(form: typeof EMPTY_FORM, schoolId: number): NewSchoolClass 
   }
 }
 
+function classToForm(c: SchoolClass): typeof EMPTY_FORM {
+  return {
+    school_id: String(c.school_id),
+    new_school_name: "",
+    new_school_arrival: "09:00",
+    new_school_departure: "15:00",
+    name: c.name,
+    capacity: String(c.capacity),
+    age_group: c.age_group.join(", "),
+    target_workshops: String(c.target_workshops),
+  }
+}
+
 export default function ClassesPage() {
   const [classes, setClasses] = useState<SchoolClass[]>([])
   const [schools, setSchools] = useState<School[]>([])
   const [form, setForm] = useState(EMPTY_FORM)
+  const [editingId, setEditingId] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -78,18 +93,34 @@ export default function ClassesPage() {
       } else {
         schoolId = Number(form.school_id)
       }
-      await createClass(formToClass(form, schoolId))
+      if (editingId != null) {
+        await updateClass(editingId, formToClass(form, schoolId))
+      } else {
+        await createClass(formToClass(form, schoolId))
+      }
       setForm({ ...EMPTY_FORM, school_id: String(schoolId) })
+      setEditingId(null)
       loadAll()
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     }
   }
 
+  function handleEdit(c: SchoolClass) {
+    setForm(classToForm(c))
+    setEditingId(c.id)
+  }
+
+  function handleCancelEdit() {
+    setForm((f) => ({ ...EMPTY_FORM, school_id: f.school_id }))
+    setEditingId(null)
+  }
+
   async function handleDelete(id: number) {
     setError(null)
     try {
       await deleteClass(id)
+      if (editingId === id) handleCancelEdit()
       loadAll()
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
@@ -185,7 +216,12 @@ export default function ClassesPage() {
             onChange={(e) => setForm({ ...form, target_workshops: e.target.value })}
           />
         </label>
-        <button type="submit">Add class</button>
+        <button type="submit">{editingId != null ? "Save changes" : "Add class"}</button>
+        {editingId != null && (
+          <button type="button" onClick={handleCancelEdit}>
+            Cancel
+          </button>
+        )}
       </form>
 
       {loading ? (
@@ -211,6 +247,7 @@ export default function ClassesPage() {
                 <td>{c.age_group.join(", ")}</td>
                 <td>{c.target_workshops}</td>
                 <td>
+                  <button onClick={() => handleEdit(c)}>Edit</button>
                   <button onClick={() => handleDelete(c.id)}>Delete</button>
                 </td>
               </tr>

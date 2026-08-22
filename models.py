@@ -35,6 +35,7 @@ class Vendor:
 @dataclass
 class SchoolClass:
     id: str
+    name: str
     school_id: str
     capacity: int
     age_group: list   # school years, e.g. [8, 9] for a combined class

@@ -51,9 +51,9 @@ def build_combined_grid(classes, by_class, vendors, step=5):
             for t in times:
                 if start <= t < end:
                     if kind == "workshop" and label in cell_text[t]:
-                        cell_text[t][label].append(f"{c.id} ({c.capacity})")
+                        cell_text[t][label].append({"class_id": c.id, "text": f"{c.name} ({c.capacity})"})
                     elif kind in ("recess", "lunch"):
-                        break_text[t].append(f"{c.id}: {label}")
+                        break_text[t].append({"class_id": c.id, "text": f"{c.name}: {label}"})
 
     return dict(times=times, vendor_names=vendor_names, cell_text=cell_text, break_text=break_text)
 
@@ -85,9 +85,8 @@ def render_combined_grid_html(grid, color_map, row_height_px=20):
         for name in vendor_names:
             entries = grid["cell_text"][t][name]
             if entries:
-                primary_id = entries[0].split()[0]
-                color = color_map.get(primary_id, "#dddddd")
-                text = " / ".join(entries)
+                color = color_map.get(entries[0]["class_id"], "#dddddd")
+                text = " / ".join(e["text"] for e in entries)
             else:
                 color, text = "#ffffff", ""
             row.append(
@@ -96,7 +95,7 @@ def render_combined_grid_html(grid, color_map, row_height_px=20):
             )
         entries = grid["break_text"][t]
         if entries:
-            color, text_color, text = "#b23b3b", "#ffffff", ", ".join(entries)
+            color, text_color, text = "#b23b3b", "#ffffff", ", ".join(e["text"] for e in entries)
         else:
             color, text_color, text = "#ffffff", "#000000", ""
         row.append(

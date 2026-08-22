@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { createSchool, deleteSchool, getSchools, type NewSchool, type School } from "../api"
+import { createSchool, deleteSchool, getSchools, updateSchool, type NewSchool, type School } from "../api"
 
 const EMPTY_FORM: NewSchool = {
   name: "",
@@ -7,9 +7,14 @@ const EMPTY_FORM: NewSchool = {
   departure_time: "15:00",
 }
 
+function schoolToForm(s: School): NewSchool {
+  return { name: s.name, arrival_time: s.arrival_time, departure_time: s.departure_time }
+}
+
 export default function SchoolsPage() {
   const [schools, setSchools] = useState<School[]>([])
   const [form, setForm] = useState(EMPTY_FORM)
+  const [editingId, setEditingId] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -26,18 +31,34 @@ export default function SchoolsPage() {
     e.preventDefault()
     setError(null)
     try {
-      await createSchool(form)
+      if (editingId != null) {
+        await updateSchool(editingId, form)
+      } else {
+        await createSchool(form)
+      }
       setForm(EMPTY_FORM)
+      setEditingId(null)
       loadSchools()
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     }
   }
 
+  function handleEdit(s: School) {
+    setForm(schoolToForm(s))
+    setEditingId(s.id)
+  }
+
+  function handleCancelEdit() {
+    setForm(EMPTY_FORM)
+    setEditingId(null)
+  }
+
   async function handleDelete(id: number) {
     setError(null)
     try {
       await deleteSchool(id)
+      if (editingId === id) handleCancelEdit()
       loadSchools()
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
@@ -74,7 +95,12 @@ export default function SchoolsPage() {
             onChange={(e) => setForm({ ...form, departure_time: e.target.value })}
           />
         </label>
-        <button type="submit">Add school</button>
+        <button type="submit">{editingId != null ? "Save changes" : "Add school"}</button>
+        {editingId != null && (
+          <button type="button" onClick={handleCancelEdit}>
+            Cancel
+          </button>
+        )}
       </form>
 
       {loading ? (
@@ -96,6 +122,7 @@ export default function SchoolsPage() {
                 <td>{s.arrival_time}</td>
                 <td>{s.departure_time}</td>
                 <td>
+                  <button onClick={() => handleEdit(s)}>Edit</button>
                   <button onClick={() => handleDelete(s.id)}>Delete</button>
                 </td>
               </tr>

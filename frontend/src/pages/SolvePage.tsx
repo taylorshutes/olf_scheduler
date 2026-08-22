@@ -70,6 +70,57 @@ export default function SolvePage() {
               </ul>
             </div>
           ))}
+
+          {result.grid && (
+            <div>
+              <h2>Master schedule</h2>
+
+              {result.colors && (
+                <div className="legend">
+                  {Object.keys(result.schedule).map((classId) => (
+                    <span key={classId} className="legend-item">
+                      <span
+                        className="legend-swatch"
+                        style={{ background: result.colors![classId] ?? "#dddddd" }}
+                      />
+                      {classLabel(classId)}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              <table className="entity-table">
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    {result.grid.vendor_names.map((name) => (
+                      <th key={name}>{name}</th>
+                    ))}
+                    <th>Break</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {result.grid.times.map((t) => (
+                    <tr key={t}>
+                      <td>{t}</td>
+                      {result.grid!.vendor_names.map((name) => {
+                        const entries = result.grid!.cell_text[t][name]
+                        const color = entries.length > 0 ? result.colors?.[entries[0].class_id] : undefined
+                        return (
+                          <td key={name} style={color ? { background: color } : undefined}>
+                            {entries.map((e) => e.text).join(" / ")}
+                          </td>
+                        )
+                      })}
+                      <td className="break-cell">
+                        {result.grid!.break_text[t].map((e) => e.text).join(", ")}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </>
       )}
     </>

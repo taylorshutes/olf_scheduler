@@ -62,6 +62,7 @@ def load_classes():
         _, _, arrival_time, departure_time = school
         result.append(SchoolClass(
             id=str(class_id),
+            name=name,
             school_id=str(school_id),
             capacity=capacity,
             age_group=_split_ages(age_group),

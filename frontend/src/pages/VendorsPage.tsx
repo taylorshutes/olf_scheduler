@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { createVendor, deleteVendor, getVendors, type NewVendor, type Vendor } from "../api"
+import { createVendor, deleteVendor, getVendors, updateVendor, type NewVendor, type Vendor } from "../api"
 
 const WORKSHOP_TYPES = ["lecture", "art", "interactive", "stem", "beach", "sport", "film"]
 
@@ -43,9 +43,27 @@ function formToVendor(form: typeof EMPTY_FORM): NewVendor {
   }
 }
 
+function vendorToForm(v: Vendor): typeof EMPTY_FORM {
+  return {
+    name: v.name,
+    available_start: v.available_start,
+    available_end: v.available_end,
+    session_duration: String(v.session_duration),
+    capacity_per_session: String(v.capacity_per_session),
+    tags: v.tags,
+    workshop_type: v.workshop_type,
+    target_ages: v.target_ages.join(", "),
+    excluded_ages: v.excluded_ages.join(", "),
+    travel_time: String(v.travel_time),
+    wants_break: v.wants_break,
+    break_duration: String(v.break_duration),
+  }
+}
+
 export default function VendorsPage() {
   const [vendors, setVendors] = useState<Vendor[]>([])
   const [form, setForm] = useState(EMPTY_FORM)
+  const [editingId, setEditingId] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -62,18 +80,34 @@ export default function VendorsPage() {
     e.preventDefault()
     setError(null)
     try {
-      await createVendor(formToVendor(form))
+      if (editingId != null) {
+        await updateVendor(editingId, formToVendor(form))
+      } else {
+        await createVendor(formToVendor(form))
+      }
       setForm(EMPTY_FORM)
+      setEditingId(null)
       loadVendors()
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     }
   }
 
+  function handleEdit(v: Vendor) {
+    setForm(vendorToForm(v))
+    setEditingId(v.id)
+  }
+
+  function handleCancelEdit() {
+    setForm(EMPTY_FORM)
+    setEditingId(null)
+  }
+
   async function handleDelete(id: number) {
     setError(null)
     try {
       await deleteVendor(id)
+      if (editingId === id) handleCancelEdit()
       loadVendors()
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
@@ -192,7 +226,12 @@ export default function VendorsPage() {
             onChange={(e) => setForm({ ...form, break_duration: e.target.value })}
           />
         </label>
-        <button type="submit">Add vendor</button>
+        <button type="submit">{editingId != null ? "Save changes" : "Add vendor"}</button>
+        {editingId != null && (
+          <button type="button" onClick={handleCancelEdit}>
+            Cancel
+          </button>
+        )}
       </form>
 
       {loading ? (
@@ -220,6 +259,7 @@ export default function VendorsPage() {
                 <td>{v.target_ages.join(", ") || "any"}</td>
                 <td>{v.excluded_ages.join(", ") || "—"}</td>
                 <td>
+                  <button onClick={() => handleEdit(v)}>Edit</button>
                   <button onClick={() => handleDelete(v.id)}>Delete</button>
                 </td>
               </tr>

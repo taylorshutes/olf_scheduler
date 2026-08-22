@@ -22,6 +22,7 @@ import classes as class_db
 import scheduler_data
 from models import minutes_to_clock
 from solver import build_and_solve, extract_schedule
+from grid import build_combined_grid, assign_colors
 
 app = FastAPI(title="Excursion Scheduler API")
 
@@ -88,6 +89,18 @@ def create_vendor(vendor: VendorIn):
     return {"id": new_id, **vendor.model_dump()}
 
 
+@app.put("/vendors/{vendor_id}")
+def update_vendor(vendor_id: int, vendor: VendorIn):
+    existing_ids = [row[0] for row in vendor_db.get_vendors()]
+    if vendor_id not in existing_ids:
+        raise HTTPException(status_code=404, detail="Vendor not found")
+    data = vendor.model_dump()
+    data["target_ages"] = _ages_to_text(data["target_ages"])
+    data["excluded_ages"] = _ages_to_text(data["excluded_ages"])
+    vendor_db.update_vendor(vendor_id, **data)
+    return {"id": vendor_id, **vendor.model_dump()}
+
+
 @app.delete("/vendors/{vendor_id}")
 def remove_vendor(vendor_id: int):
     existing_ids = [row[0] for row in vendor_db.get_vendors()]
@@ -114,6 +127,15 @@ def list_schools():
 def create_school(school: SchoolIn):
     new_id = school_db.add_school(**school.model_dump())
     return {"id": new_id, **school.model_dump()}
+
+
+@app.put("/schools/{school_id}")
+def update_school(school_id: int, school: SchoolIn):
+    existing_ids = [row[0] for row in school_db.get_schools()]
+    if school_id not in existing_ids:
+        raise HTTPException(status_code=404, detail="School not found")
+    school_db.update_school(school_id, **school.model_dump())
+    return {"id": school_id, **school.model_dump()}
 
 
 @app.delete("/schools/{school_id}")
@@ -156,6 +178,20 @@ def create_class(class_: ClassIn):
     return {"id": new_id, **class_.model_dump()}
 
 
+@app.put("/classes/{class_id}")
+def update_class(class_id: int, class_: ClassIn):
+    existing_ids = [row[0] for row in class_db.get_classes()]
+    if class_id not in existing_ids:
+        raise HTTPException(status_code=404, detail="Class not found")
+    data = class_.model_dump()
+    data["age_group"] = _ages_to_text(data["age_group"])
+    try:
+        class_db.update_class(class_id, **data)
+    except sqlite3.IntegrityError:
+        raise HTTPException(status_code=400, detail="school_id does not exist")
+    return {"id": class_id, **class_.model_dump()}
+
+
 @app.delete("/classes/{class_id}")
 def remove_class(class_id: int):
     existing_ids = [row[0] for row in class_db.get_classes()]
@@ -184,4 +220,17 @@ def solve():
         ]
         for class_id, entries in by_class.items()
     }
-    return {"schedule": schedule, "alerts": alerts}
+
+    grid_data = build_combined_grid(classes, by_class, vendors)
+    grid = None
+    colors = None
+    if grid_data is not None:
+        grid = {
+            "times": [minutes_to_clock(t) for t in grid_data["times"]],
+            "vendor_names": grid_data["vendor_names"],
+            "cell_text": {minutes_to_clock(t): row for t, row in grid_data["cell_text"].items()},
+            "break_text": {minutes_to_clock(t): entries for t, entries in grid_data["break_text"].items()},
+        }
+        colors = assign_colors(classes)
+
+    return {"schedule": schedule, "alerts": alerts, "grid": grid, "colors": colors}
