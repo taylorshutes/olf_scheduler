@@ -12,6 +12,7 @@ import sqlite3
 from typing import List, Optional
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from db import create_tables
@@ -23,6 +24,14 @@ from models import minutes_to_clock
 from solver import build_and_solve, extract_schedule
 
 app = FastAPI(title="Excursion Scheduler API")
+
+# Dev only: lets the Vite dev server (localhost:5173) call this API directly.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 create_tables()  # make sure tables exist as soon as the server starts
 
@@ -65,6 +74,7 @@ def list_vendors():
         v = dict(zip(columns, row))
         v["target_ages"] = _text_to_ages(v["target_ages"])
         v["excluded_ages"] = _text_to_ages(v["excluded_ages"])
+        v["wants_break"] = bool(v["wants_break"])
         result.append(v)
     return result
 
