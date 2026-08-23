@@ -1,0 +1,137 @@
+{
+  "common": {
+    "save": "Save changes",
+    "cancel": "Cancel",
+    "loading": "Loading…",
+    "edit": "Edit",
+    "delete": "Delete",
+    "back": "Back"
+  },
+  "nav": {
+    "home": "Home",
+    "vendors": "Vendors",
+    "schools": "Schools",
+    "classes": "Classes",
+    "solve": "Solve"
+  },
+  "home": {
+    "title": "Ocean Lovers Festival Scheduler",
+    "vendorsCount": "Vendors",
+    "schoolsCount": "Schools",
+    "classesCount": "Classes",
+    "sideNav": {
+      "vendorsTitle": "Vendors",
+      "addVendor": "Add vendor",
+      "classesTitle": "Classes",
+      "addClass": "Add class",
+      "searchPlaceholder": "Search vendors, schools, classes…",
+      "searchVendorLabel": "Vendor",
+      "searchSchoolLabel": "School",
+      "searchClassLabel": "Class",
+      "searchNoResults": "No matches"
+    }
+  },
+  "vendors": {
+    "title": "Vendors",
+    "addButton": "Add vendor",
+    "fields": {
+      "name": "Name",
+      "availableStart": "Available start",
+      "availableEnd": "Available end",
+      "sessionDuration": "Session duration (min)",
+      "capacityPerSession": "Capacity per session",
+      "tags": "Tags (comma-separated)",
+      "tagsPlaceholder": "stem, hands-on",
+      "workshopType": "Workshop type",
+      "workshopTypeNone": "(none)",
+      "targetAges": "Target Year Groups (comma-separated)",
+      "targetAgesPlaceholder": "8, 9",
+      "excludedAges": "Excluded ages (comma-separated)",
+      "excludedAgesPlaceholder": "10",
+      "travelTime": "Travel time (min)",
+      "wantsBreak": "Wants break between sessions",
+      "breakDuration": "Break duration (min)"
+    },
+    "workshopTypes": {
+      "lecture": "Lecture",
+      "art": "Art",
+      "interactive": "Interactive",
+      "stem": "STEM",
+      "beach": "Beach",
+      "sport": "Sport",
+      "film": "Film"
+    },
+    "columns": {
+      "name": "Name",
+      "hours": "Hours",
+      "session": "Session",
+      "capacity": "Capacity",
+      "targetYearGroups": "Target Year Groups",
+      "excludedAges": "Excluded ages",
+      "any": "any"
+    },
+    "detail": {
+      "timetableTitle": "Day timetable",
+      "arrival": "Arrival",
+      "departure": "Departure",
+      "suggestedBreak": "Suggested break",
+      "kids": "{{count}} kids"
+    }
+  },
+  "schools": {
+    "title": "Schools",
+    "addButton": "Add school",
+    "fields": {
+      "name": "Name",
+      "arrivalTime": "Arrival time",
+      "departureTime": "Departure time"
+    },
+    "columns": {
+      "name": "Name",
+      "arrival": "Arrival",
+      "departure": "Departure"
+    },
+    "detail": {
+      "classesTitle": "Classes",
+      "noClasses": "No classes at this school yet."
+    }
+  },
+  "classes": {
+    "title": "Classes",
+    "addButton": "Add class",
+    "addNewSchoolOption": "+ Add new school",
+    "fields": {
+      "school": "School",
+      "newSchoolName": "New school name",
+      "arrivalTime": "Arrival time",
+      "departureTime": "Departure time",
+      "name": "Name",
+      "namePlaceholder": "Year 8/9",
+      "capacity": "Capacity",
+      "yearGroups": "Year Groups (comma-separated)",
+      "yearGroupsPlaceholder": "8, 9",
+      "targetWorkshops": "Target workshops"
+    },
+    "columns": {
+      "school": "School",
+      "name": "Name",
+      "capacity": "Capacity",
+      "yearGroups": "Year Groups",
+      "targetWorkshops": "Target workshops"
+    },
+    "detail": {
+      "scheduleTitle": "Day schedule"
+    }
+  },
+  "solve": {
+    "title": "Solve",
+    "runButton": "Run solver",
+    "solving": "Solving…",
+    "alertsTitle": "Alerts",
+    "masterScheduleTitle": "Master schedule",
+    "timeColumn": "Time",
+    "breakColumn": "Break",
+    "unknownClass": "class #{{id}}",
+    "noResultYet": "Run the solver to see the master schedule."
+  }
+}

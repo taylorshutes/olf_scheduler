@@ -21,7 +21,7 @@ export interface Vendor {
 
 export type NewVendor = Omit<Vendor, "id">
 
-async function request<T>(path: string, options?: RequestInit): Promise<T> {
+const request = async <T>(path: string, options?: RequestInit): Promise<T> => {
   const res = await fetch(`${API_BASE}${path}`, {
     headers: { "Content-Type": "application/json" },
     ...options,
@@ -33,21 +33,16 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   return res.json()
 }
 
-export function getVendors(): Promise<Vendor[]> {
-  return request("/vendors")
-}
+export const getVendors = (): Promise<Vendor[]> => request("/vendors")
 
-export function createVendor(vendor: NewVendor): Promise<Vendor> {
-  return request("/vendors", { method: "POST", body: JSON.stringify(vendor) })
-}
+export const createVendor = (vendor: NewVendor): Promise<Vendor> =>
+  request("/vendors", { method: "POST", body: JSON.stringify(vendor) })
 
-export function updateVendor(id: number, vendor: NewVendor): Promise<Vendor> {
-  return request(`/vendors/${id}`, { method: "PUT", body: JSON.stringify(vendor) })
-}
+export const updateVendor = (id: number, vendor: NewVendor): Promise<Vendor> =>
+  request(`/vendors/${id}`, { method: "PUT", body: JSON.stringify(vendor) })
 
-export function deleteVendor(id: number): Promise<{ deleted: number }> {
-  return request(`/vendors/${id}`, { method: "DELETE" })
-}
+export const deleteVendor = (id: number): Promise<{ deleted: number }> =>
+  request(`/vendors/${id}`, { method: "DELETE" })
 
 export interface School {
   id: number
@@ -58,21 +53,16 @@ export interface School {
 
 export type NewSchool = Omit<School, "id">
 
-export function getSchools(): Promise<School[]> {
-  return request("/schools")
-}
+export const getSchools = (): Promise<School[]> => request("/schools")
 
-export function createSchool(school: NewSchool): Promise<School> {
-  return request("/schools", { method: "POST", body: JSON.stringify(school) })
-}
+export const createSchool = (school: NewSchool): Promise<School> =>
+  request("/schools", { method: "POST", body: JSON.stringify(school) })
 
-export function updateSchool(id: number, school: NewSchool): Promise<School> {
-  return request(`/schools/${id}`, { method: "PUT", body: JSON.stringify(school) })
-}
+export const updateSchool = (id: number, school: NewSchool): Promise<School> =>
+  request(`/schools/${id}`, { method: "PUT", body: JSON.stringify(school) })
 
-export function deleteSchool(id: number): Promise<{ deleted: number }> {
-  return request(`/schools/${id}`, { method: "DELETE" })
-}
+export const deleteSchool = (id: number): Promise<{ deleted: number }> =>
+  request(`/schools/${id}`, { method: "DELETE" })
 
 export interface SchoolClass {
   id: number
@@ -85,22 +75,19 @@ export interface SchoolClass {
 
 export type NewSchoolClass = Omit<SchoolClass, "id">
 
-export function getClasses(schoolId?: number): Promise<SchoolClass[]> {
+export const getClasses = (schoolId?: number): Promise<SchoolClass[]> => {
   const qs = schoolId != null ? `?school_id=${schoolId}` : ""
   return request(`/classes${qs}`)
 }
 
-export function createClass(cls: NewSchoolClass): Promise<SchoolClass> {
-  return request("/classes", { method: "POST", body: JSON.stringify(cls) })
-}
+export const createClass = (cls: NewSchoolClass): Promise<SchoolClass> =>
+  request("/classes", { method: "POST", body: JSON.stringify(cls) })
 
-export function updateClass(id: number, cls: NewSchoolClass): Promise<SchoolClass> {
-  return request(`/classes/${id}`, { method: "PUT", body: JSON.stringify(cls) })
-}
+export const updateClass = (id: number, cls: NewSchoolClass): Promise<SchoolClass> =>
+  request(`/classes/${id}`, { method: "PUT", body: JSON.stringify(cls) })
 
-export function deleteClass(id: number): Promise<{ deleted: number }> {
-  return request(`/classes/${id}`, { method: "DELETE" })
-}
+export const deleteClass = (id: number): Promise<{ deleted: number }> =>
+  request(`/classes/${id}`, { method: "DELETE" })
 
 export interface ScheduleEntry {
   start: string // "HH:MM"
@@ -128,6 +115,4 @@ export interface SolveResult {
   colors: Record<string, string> | null // class id -> hex color
 }
 
-export function solve(): Promise<SolveResult> {
-  return request("/solve", { method: "POST" })
-}
+export const solve = (): Promise<SolveResult> => request("/solve", { method: "POST" })
